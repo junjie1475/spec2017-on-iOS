@@ -5,7 +5,7 @@ This is only an experimental playground to run spec2017 on iOS. It supports all 
 
 # How to install
 1. Download ipa file on release page
-2. Use sideload app to side it.(if you don't have a computer, you can use scarlet or flekstore.
+2. Use sideload app to sideload it.(if you don't have a computer, you can use scarlet or flekstore.)
 
 # How to compile it yourself
 1. You need to have the create a folder name ``Input`` under Spec2017 folder
