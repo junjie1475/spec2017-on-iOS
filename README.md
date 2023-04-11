@@ -11,4 +11,4 @@ This is only an experimental playground to run spec2017 on iOS. It supports all 
 1. You need to have the create a folder name ``Input`` under Spec2017 folder
 2. create sub folders with naming like 502.gcc under the Input folder
 3. copy all the spec2017 reference Input data to that sub folder according to the benchmark name
-4. Add rary.a as static lib
+4. Add specbin/rary.a as static lib
