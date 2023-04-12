@@ -49,6 +49,7 @@ fpRate
 ```
 
 # How to compile static library(llvm flang) for Fortran benchmark
+Note: You can find the pre-built library inside ``fortran_lib`` folder(All build with Flang17.0.0).
 1. Follow the instruction on offical repo (https://github.com/llvm/llvm-project/tree/main/flang) to build the flang compiler for your own platform.
 2. Clone the repo again for building ios lib
 3. Next run the following commands(PATH_TO_LLVM_BUILD_FOLDER is the folder of the native platform build)
