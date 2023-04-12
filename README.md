@@ -14,6 +14,40 @@ This is only an experimental playground to run spec2017 on iOS. It supports all 
 3. Copy all the spec2017 reference Input data to that sub folder according to the benchmark name
 4. Add specbin/rary.a as static lib
 
+# TODO: How to compile spec benchmarks
+1. Modify all the benchmarks main Function/Program's name to name inside /specbin/specEntry.c file
+2. Here is the list of benchmark entry points
+```
+intRate
+
+500.perlbench     -perlmainc.c       line 61
+502.gcc           -main.c            line 35
+505.mcf           -mcf.c             line 134
+520.omnetpp_r     -simulator/main.cc line 32
+523.xalancbmk_r   -XalanExe.cpp      line 870
+525.x264_r        -x264_src/x264.c   line 152
+531.deepsjeng_r   -sjeng.cpp         line 44
+541.leela_r       -Leela.cpp         line 20
+548.exchange2_r   -exchange2.f90     line 1383
+557.xz_r          -spec.c            line 25
+
+fpRate
+
+503.bwaves_r     -flow_lam.F                              line 107
+507.cactuBSSN_r  -Cactus/main/flesh.cc                    line 57
+508.namd_r       -spec_namd.C                             line 35
+510.parest_r     -source/me-tomography/me_tomography.cc   line 215
+511.povray_r     -povray.cpp                              line 190
+519.lbm_r        -main.c                                  line 25
+521.wrf_r        -wrf.f90                                 line 6
+526.blender_r    -blender/source/creator/creator.c        line 1530
+527.cam4_r       -ccsm_driver.f90                         line 25
+538.imagick_r    -utilities/convert.c                     line 91
+544.nab_r        -nabmd.c                                 line 40
+549.fotonik3d_r  -yeemain.f90                             line 37
+554.roms_r       -master.f90                              line 1241
+```
+
 # How to compile static library(llvm flang) for Fortran benchmark
 1. Follow the instruction on offical repo (https://github.com/llvm/llvm-project/tree/main/flang) to build the flang compiler for your own platform.
 2. Clone the repo again for building ios lib
