@@ -13,7 +13,7 @@ struct ResultView: View {
     let refMachine: [String:Double] =
     [
         "500.perlbench_r": 1591,
-        "502.gcc_r": 1415,
+//        "502.gcc_r": 1415,
         "505.mcf_r": 1615,
         "520.omnetpp_r": 1311,
         "523.xalancbmk_r": 1055,

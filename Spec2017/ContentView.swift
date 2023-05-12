@@ -21,7 +21,7 @@ enum BenchmarkSelection : String, CaseIterable {
 // global variables use by threads
 var runTime_: Int = 0
 var bench_: String = ""
-//var running_: Int = 0
+var running_: Int = 0
 var testECore_: Bool = false
 
 func runBench(_ bench: String, _ testECore: Bool) -> Int {
@@ -31,6 +31,7 @@ func runBench(_ bench: String, _ testECore: Bool) -> Int {
     var thread: pthread_t? = nil
     var qosAttribute = pthread_attr_t()
     pthread_attr_init(&qosAttribute)
+    running_ = 1
     pthread_create(&thread, &qosAttribute, { arg in
         if(testECore_) {
             var param = sched_param()
@@ -53,15 +54,20 @@ func runBench(_ bench: String, _ testECore: Bool) -> Int {
         
         // 3. run the benchmark
         runTime_ = specEntry(bench_)
-//        running_ = 0
+        running_ = 0
         
         // 4. set current direcoty to root and return the result
 //        FileManager.default.changeCurrentDirectoryPath("/")
         return UnsafeMutableRawPointer.allocate(byteCount: 1, alignment: 1)
     }, nil)
 
-    pthread_join(thread!, nil)
-    
+//    pthread_join(thread!, nil)
+    while(true) {
+        sleep(5);
+        if(running_ == 0) {
+            break;
+        }
+    }
     return runTime_
 }
 
@@ -76,7 +82,7 @@ struct ContentView: View {
     @State private var testECore = false
     let itemsInt = [
         "500.perlbench_r",
-        "502.gcc_r",
+//        "502.gcc_r",
         "505.mcf_r",
         "520.omnetpp_r",
         "523.xalancbmk_r",
