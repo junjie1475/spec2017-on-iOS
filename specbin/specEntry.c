@@ -2,7 +2,6 @@
 #include <unistd.h>
 #include <time.h>
 #include <string.h>
-#include <pthread.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <mach/mach_time.h>
@@ -11,40 +10,28 @@
 #include <mach/mach_port.h>
 #include <mach/mach_init.h>
 
-// struct proc_threadinfo {
-// 	uint64_t                pth_user_time;          /* user run time */
-// 	uint64_t                pth_system_time;        /* system run time */
-// 	int32_t                 pth_cpu_usage;          /* scaled cpu usage percentage */
-// 	int32_t                 pth_policy;             /* scheduling policy in effect */
-// 	int32_t                 pth_run_state;          /* run state (see below) */
-// 	int32_t                 pth_flags;              /* various flags (see below) */
-// 	int32_t                 pth_sleep_time;         /* number of seconds that thread */
-// 	int32_t                 pth_curpri;             /* cur priority*/
-// 	int32_t                 pth_priority;           /*  priority*/
-// 	int32_t                 pth_maxpriority;        /* max priority*/
-// 	char                    pth_name[MAXTHREADNAMESIZE];    /* thread name, if any */
-// };
-// 
-// #define PROC_PIDTHREADINFO              5
-// #define PROC_PIDTHREADINFO_SIZE         (sizeof(struct proc_threadinfo))
-// int proc_pidinfo(int pid, int flavor, uint64_t arg, void *buffer, int buffersize);
-
 #define run_env(i, func) \
-	convert(i); \
+    __convert(i); \
 	thread_usertime(&st); \
 	func(argc, argv, env); \
 	thread_usertime(&et); \
 	total_time += et - st
 
 #define run(i, func) \
-	convert(i); \
+    __convert(i); \
 	thread_usertime(&st); \
 	func(argc, argv); \
 	thread_usertime(&et); \
 	total_time += et - st
 
 int perl_entry(int argc, char **argv, char **env);
-int gcc_entry (int argc, char **argv);
+// gcc workaround
+int gcc_entry__0 (int argc, char **argv);
+int gcc_entry__1 (int argc, char **argv);
+int gcc_entry__2 (int argc, char **argv);
+int gcc_entry__3 (int argc, char **argv);
+int gcc_entry__4 (int argc, char **argv);
+
 int omnetpp_entry(int argc, char *argv[]);
 int xalancbmk_entry(int argc, char *argv[]);
 int deepsjeng_entry(int argc, char *argv[]);
@@ -58,7 +45,7 @@ enum { kMaxArgs = 64 };
 char *env[] = { 0 };
 int argc = 0;
 char *argv[kMaxArgs];
-double st, et;
+static double st, et;
 double total_time = 0;
 mach_timebase_info_data_t _clock_timebase;
 
@@ -88,10 +75,10 @@ static char commandLine[][300] = {
 /* 18 */"./x264 --seek 500 --dumpyuv 200 --frames 1250 -o BuckBunny_New.264 BuckBunny.yuv 1280x720",
 };
 
-// static inline double mach_time_to_seconds(uint64_t mach_time) {
-//    double nanos = (mach_time * _clock_timebase.numer) / _clock_timebase.denom;
-//    return nanos / 1e9;
-// }
+ static inline double mach_time_to_seconds(uint64_t mach_time) {
+    double nanos = (mach_time * _clock_timebase.numer) / _clock_timebase.denom;
+    return nanos / 1e9;
+ }
 
 static inline void thread_usertime(double* time) {
 	mach_msg_type_number_t count;
@@ -103,7 +90,7 @@ static inline void thread_usertime(double* time) {
 	*time = thi->user_time.seconds + thi->user_time.microseconds * 1e-6;
 }
 
-void convert(int i) {
+void __convert(int i) {
 	argc = 0;
 	char *p2 = strtok(commandLine[i], " ");
 	while (p2 && argc < kMaxArgs-1) {
@@ -121,14 +108,26 @@ void run_perl() {
 }
 
 void run_gcc() {
+#define _gcc_run(N, run_entry) __init(); \
+                               run(N, gcc_entry__##run_entry); \
+                               __freelist(); \
+                               used_time = mach_time_to_seconds(__overhead); \
+                               total_time -= used_time;
+
 	total_time = 0;
-	return;
-    // TODO: add all gcc commands
-	 run(3, gcc_entry);
-	 run(4, gcc_entry);
-	 run(5, gcc_entry);
-	 run(6, gcc_entry);
-	 run(7, gcc_entry);
+    extern void __init();
+    extern void __freelist();
+    extern uint64_t __overhead;
+    
+    double used_time = 0;
+    mach_timebase_info(&_clock_timebase);
+    
+    _gcc_run(3, 0);
+    _gcc_run(4, 1);
+    _gcc_run(5, 2);
+    _gcc_run(6, 3);
+    _gcc_run(7, 4);
+#undef _gcc_run
 }
 
 void run_mcf() {
@@ -169,8 +168,8 @@ void run_x264() {
    strcpy(path,getenv("HOME"));
    strcat(path,"/Documents/x264_stats.log");
     
-   sprintf(commandLine[12], "./x264 --pass 1 --stats %s --bitrate 1000 --frames 1000 -o BuckBunny_New.264 BuckBunny.yuv 1280x720", path);
-   sprintf(commandLine[13], "./x264 --pass 2 --stats %s --bitrate 1000 --dumpyuv 200 --frames 1000 -o BuckBunny_New.264 BuckBunny.yuv 1280x720", path);
+   sprintf(commandLine[16], "./x264 --pass 1 --stats %s --bitrate 1000 --frames 1000 -o BuckBunny_New.264 BuckBunny.yuv 1280x720", path);
+   sprintf(commandLine[17], "./x264 --pass 2 --stats %s --bitrate 1000 --dumpyuv 200 --frames 1000 -o BuckBunny_New.264 BuckBunny.yuv 1280x720", path);
 	run(16, x264_entry);
 	run(17, x264_entry);
 	run(18, x264_entry);
@@ -182,7 +181,7 @@ void run_exchange2() {
 	thread_usertime(&st);
 	exchange2_entry(&arg);
 	thread_usertime(&et);
-	total_time += mach_time_to_seconds(et - st);
+	total_time += et - st;
 }
 
 long specEntry(const char* benchname) {
@@ -210,3 +209,19 @@ long specEntry(const char* benchname) {
     printf("total_time: %f\n", total_time);
 	return total_time;
 }
+/* 500: 707s*/
+/* 502:
+    1. 58s
+    2. 70s
+    3. 69s
+    4. 85s
+    5. 104s
+        386s */
+/* 505: 574s*/
+/* 520: 884s*/
+/* 523: 304*/
+/* 525: 415*/
+/* 531: 599*/
+/* 541: 633s*/
+/* 557: 638s*/
+

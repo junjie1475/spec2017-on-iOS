@@ -13,7 +13,7 @@
 		B398B2B629AF68D200B03BF9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B398B2B529AF68D200B03BF9 /* Assets.xcassets */; };
 		B398B2BA29AF68D200B03BF9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B398B2B929AF68D200B03BF9 /* Preview Assets.xcassets */; };
 		B3A8D0C829B4C94B00D47FBB /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B3A8D0C729B4C94A00D47FBB /* libc++.tbd */; };
-		B3ACF4AD29B1F5740051C636 /* rary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3ACF4AC29B1F5740051C636 /* rary.a */; };
+		B3ACD9032A0E151100B0B017 /* rary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3ACD9022A0E151100B0B017 /* rary.a */; };
 		B3B205A329BCA71B00EE18E6 /* libc.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B3B205A229BCA71B00EE18E6 /* libc.tbd */; };
 		B3D8C6E229B1D51200CBC478 /* Input in Resources */ = {isa = PBXBuildFile; fileRef = B3D8C6E129B1D51200CBC478 /* Input */; };
 /* End PBXBuildFile section */
@@ -28,7 +28,8 @@
 		B398B2B929AF68D200B03BF9 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		B3A2B64529B1F2C900378B32 /* Spec2017-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Spec2017-Bridging-Header.h"; sourceTree = "<group>"; };
 		B3A8D0C729B4C94A00D47FBB /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS16.2.sdk/usr/lib/libc++.tbd"; sourceTree = DEVELOPER_DIR; };
-		B3ACF4AC29B1F5740051C636 /* rary.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = rary.a; path = ../../playground/ios_static/rary.a; sourceTree = "<group>"; };
+		B3ACD9022A0E151100B0B017 /* rary.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = rary.a; path = specbin/rary.a; sourceTree = "<group>"; };
+		B3ACD9052A0E20E800B0B017 /* specbin */ = {isa = PBXFileReference; lastKnownFileType = folder; path = specbin; sourceTree = "<group>"; };
 		B3B205A229BCA71B00EE18E6 /* libc.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libc.tbd; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS16.2.sdk/usr/lib/libc.tbd; sourceTree = DEVELOPER_DIR; };
 		B3D8C6E129B1D51200CBC478 /* Input */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Input; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -40,7 +41,7 @@
 			files = (
 				B3B205A329BCA71B00EE18E6 /* libc.tbd in Frameworks */,
 				B3A8D0C829B4C94B00D47FBB /* libc++.tbd in Frameworks */,
-				B3ACF4AD29B1F5740051C636 /* rary.a in Frameworks */,
+				B3ACD9032A0E151100B0B017 /* rary.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -50,6 +51,7 @@
 		B398B2A529AF68CD00B03BF9 = {
 			isa = PBXGroup;
 			children = (
+				B3ACD9052A0E20E800B0B017 /* specbin */,
 				B398B2B029AF68CD00B03BF9 /* Spec2017 */,
 				B398B2AF29AF68CD00B03BF9 /* Products */,
 				B3ACF4AB29B1F5740051C636 /* Frameworks */,
@@ -90,9 +92,9 @@
 		B3ACF4AB29B1F5740051C636 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B3ACD9022A0E151100B0B017 /* rary.a */,
 				B3B205A229BCA71B00EE18E6 /* libc.tbd */,
 				B3A8D0C729B4C94A00D47FBB /* libc++.tbd */,
-				B3ACF4AC29B1F5740051C636 /* rary.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -104,6 +106,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B398B2BD29AF68D200B03BF9 /* Build configuration list for PBXNativeTarget "Spec2017" */;
 			buildPhases = (
+				B3ACD9042A0E169400B0B017 /* ShellScript */,
 				B398B2AA29AF68CD00B03BF9 /* Sources */,
 				B398B2AB29AF68CD00B03BF9 /* Frameworks */,
 				B398B2AC29AF68CD00B03BF9 /* Resources */,
@@ -163,6 +166,43 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		B3ACD9042A0E169400B0B017 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/specbin/specEntry.c",
+				"$(SRCROOT)/specbin/deepsjeng.o",
+				"$(SRCROOT)/specbin/exchange2.o",
+				"$(SRCROOT)/specbin/gcc.o",
+				"$(SRCROOT)/specbin/leela_r.o",
+				"$(SRCROOT)/specbin/mcf.o",
+				"$(SRCROOT)/specbin/omnetpp.o",
+				"$(SRCROOT)/specbin/perlbench.o",
+				"$(SRCROOT)/specbin/x264.o",
+				"$(SRCROOT)/specbin/xalancbmk.o",
+				"$(SRCROOT)/specbin/xz.o",
+				"$(SRCROOT)/specbin/gcc_workaround/warp.c",
+				"$(SRCROOT)/specbin/redefine",
+				"$(SRCROOT)/specbin/gcc_original.o",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/specbin/specEntry.o",
+				"$(SRCROOT)/specbin/rary.a",
+				"$(SRCROOT)/specbin/gcc_workaround/warp.o",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "cd ${SRCROOT}/specbin/gcc_workaround &&\nmake &&\n/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -isysroot $(xcrun --sdk iphoneos --show-sdk-path)  -Ofast -c -arch arm64 -g -o ${SCRIPT_OUTPUT_FILE_0} ${SCRIPT_INPUT_FILE_0} &&\n/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -o ${SCRIPT_OUTPUT_FILE_1} ${SCRIPT_INPUT_FILE_1} ${SCRIPT_INPUT_FILE_2} ${SCRIPT_INPUT_FILE_3} ${SCRIPT_INPUT_FILE_4} ${SCRIPT_INPUT_FILE_5} ${SCRIPT_INPUT_FILE_6} ${SCRIPT_INPUT_FILE_7} ${SCRIPT_INPUT_FILE_8} ${SCRIPT_INPUT_FILE_9} ${SCRIPT_INPUT_FILE_10} ${SCRIPT_OUTPUT_FILE_0}\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		B398B2AA29AF68CD00B03BF9 /* Sources */ = {
@@ -315,6 +355,10 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/specbin",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 12.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = junjie1475.Spec2017;
@@ -357,6 +401,10 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/specbin",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 12.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = junjie1475.Spec2017;

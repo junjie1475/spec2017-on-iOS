@@ -31,6 +31,8 @@ func runBench(_ bench: String, _ testECore: Bool) -> Int {
     var thread: pthread_t? = nil
     var qosAttribute = pthread_attr_t()
     pthread_attr_init(&qosAttribute)
+    var size: Int = 4096 * 1024;
+    pthread_attr_setstacksize(&qosAttribute, size)
     running_ = 1
     pthread_create(&thread, &qosAttribute, { arg in
         if(testECore_) {
@@ -56,12 +58,10 @@ func runBench(_ bench: String, _ testECore: Bool) -> Int {
         runTime_ = specEntry(bench_)
         running_ = 0
         
-        // 4. set current direcoty to root and return the result
-//        FileManager.default.changeCurrentDirectoryPath("/")
         return UnsafeMutableRawPointer.allocate(byteCount: 1, alignment: 1)
     }, nil)
-
-//    pthread_join(thread!, nil)
+    
+    // since pthread_join() will effects the E-Core run, scan memory every 5s to check the state.
     while(true) {
         sleep(5);
         if(running_ == 0) {
@@ -82,7 +82,7 @@ struct ContentView: View {
     @State private var testECore = false
     let itemsInt = [
         "500.perlbench_r",
-//        "502.gcc_r",
+        "502.gcc_r",
         "505.mcf_r",
         "520.omnetpp_r",
         "523.xalancbmk_r",
