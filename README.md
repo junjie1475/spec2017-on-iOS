@@ -9,10 +9,8 @@ This is only an experimental playground to run spec2017 on iOS. It supports all 
 2. Use sideload app to sideload it.(if you don't have a computer, you can use scarlet or flekstore.)
 
 # How to compile it yourself
-1. You need to create a folder name ``Input`` under Spec2017 folder
-2. Create sub folders with naming like 502.gcc under the Input folder
-3. Copy all the spec2017 reference Input data to that sub folder according to the benchmark name
-4. Add specbin/rary.a as static lib
+1. Copy the input folder from the ipa file and paste it under `Spec2017/` folder.
+3. Add specbin/rary.a as static lib
 
 # TODO: How to compile spec benchmarks
 1. Modify all the benchmarks main Function/Program's name to name inside /specbin/specEntry.c file
