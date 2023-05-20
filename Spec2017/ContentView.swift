@@ -19,12 +19,12 @@ enum BenchmarkSelection : String, CaseIterable {
 
 
 // global variables use by threads
-var runTime_: Int = 0
+var results: [Double] = [0, 0]
 var bench_: String = ""
 var running_: Int = 0
 var testECore_: Bool = false
 
-func runBench(_ bench: String, _ testECore: Bool) -> Int {
+func runBench(_ bench: String, _ testECore: Bool) -> [Double] {
     bench_ = bench
     testECore_ = testECore
     
@@ -55,7 +55,7 @@ func runBench(_ bench: String, _ testECore: Bool) -> Int {
         FileManager.default.changeCurrentDirectoryPath(benchRunPath)
         
         // 3. run the benchmark
-//        runTime_ = specEntry(bench_)
+        specEntry(bench_, &results)
         running_ = 0
         
         return UnsafeMutableRawPointer.allocate(byteCount: 1, alignment: 1)
@@ -68,7 +68,7 @@ func runBench(_ bench: String, _ testECore: Bool) -> Int {
             break;
         }
     }
-    return runTime_
+    return results
 }
 
 struct ContentView: View {
@@ -95,8 +95,8 @@ struct ContentView: View {
     let itemsFp: [String] = []
     @State private var isPresentingConfirm: Bool = false
     
-    @State private var runTimes: [String:Int] = [:]
-    @State private var path: [[String:Int]] = []
+    @State private var runTimes: [String:[Double]] = [:]
+    @State private var path: [[String:[Double]]] = []
     var body: some View {
         ZStack {
             NavigationStack(path: $path) {
@@ -165,7 +165,7 @@ struct ContentView: View {
                         } message: {
                             Text("Due to some ios limitation, you need to restart the App to run spec")
                         }
-                        .navigationDestination(for: [String:Int].self) { runTimes in
+                        .navigationDestination(for: [String:[Double]].self) { runTimes in
                             ResultView(runTimes: $runTimes).navigationTitle("Result")
                         }
                     }.padding()

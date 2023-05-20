@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ResultView: View {
-    @Binding var runTimes: [String:Int]
+    @Binding var runTimes: [String:[Double]]
     @State var geoMean: Double = 1
     let refMachine: [String:Double] =
     [
@@ -27,15 +27,15 @@ struct ResultView: View {
     var body: some View {
         List {
             Section(header: Text("Integer")) {
-                ForEach(runTimes.sorted(by: >), id: \.key) { bench, time in
+                ForEach(runTimes.sorted(by: { $0.key < $1.key }), id: \.key) { bench, result in
                     HStack {
                         Text(bench)
                         Spacer()
                         VStack (alignment: .trailing) {
-                            let score = refMachine[bench]! / Double(time);
+                            let score = refMachine[bench]! / result[0];
                             
                             Text("\(String(format: "%.2f", score))")
-                            Text("\(time)s")
+                            Text("\(String(format: "%.2f", result[1]))w   \(String(format: "%.2f", result[0]))s")
                                 .font(.system(size: 13))
                                 .foregroundColor(.gray)
                         }
@@ -51,7 +51,7 @@ struct ResultView: View {
             
         }.onAppear() {
             for (bench, time) in runTimes {
-                geoMean = geoMean * (refMachine[bench]! / Double(time));
+                geoMean = geoMean * (refMachine[bench]! / Double(time[0]));
             }
             geoMean = pow(geoMean, Double(1.0 / Double(runTimes.count)))
         }
@@ -59,11 +59,11 @@ struct ResultView: View {
 }
 
 struct ResultView_Previews: PreviewProvider {
-    @State private static var runTimes: [String:Int] =
+    @State private static var runTimes: [String:[Double]] =
     [
-        "557.xz_r": 343,
-        "502.gcc_r": 226,
-        "505.mcf_r": 158,
+        "557.xz_r": [343, 3.2],
+        "502.gcc_r": [226, 3.0],
+        "505.mcf_r": [158, 2.9],
     ]
 
     static var previews: some View {

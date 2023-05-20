@@ -10,20 +10,29 @@
 #include <mach/mach_port.h>
 #include <mach/mach_init.h>
 #include <fcntl.h>
+#include <sys/resource.h>
 
 #define run_env(i, func) \
     __convert(i); \
+    proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, &usage1); \
 	thread_usertime(&st); \
 	func(argc, argv, env); \
 	thread_usertime(&et); \
-	total_time += et - st
-
+    proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, &usage2); \
+    total_time += et - st; \
+    total_nj += usage2.ri_energy_nj - usage1.ri_energy_nj
+    
 #define run(i, func) \
     __convert(i); \
+    proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, &usage1); \
 	thread_usertime(&st); \
 	func(argc, argv); \
 	thread_usertime(&et); \
-	total_time += et - st
+    proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, &usage2); \
+    total_time += et - st; \
+    total_nj += usage2.ri_energy_nj - usage1.ri_energy_nj
+
+int proc_pid_rusage(int pid, int flavor, rusage_info_t *buffer);
 
 int perl_entry(int argc, char **argv, char **env);
 // gcc workaround
@@ -49,6 +58,9 @@ char *argv[kMaxArgs];
 static double st, et;
 double total_time = 0;
 mach_timebase_info_data_t _clock_timebase;
+pid_t pid;
+rusage_info_current usage1, usage2;
+uint64_t total_nj;
 
 static char commandLine[][300] = {
 /* 0 */"./perlbench -I./lib checkspam.pl 2500 5 25 11 150 1 1 1 1",
@@ -88,6 +100,7 @@ static inline void thread_usertime(double* time) {
 	thread_basic_info_data_t thi_data;
 	count = THREAD_BASIC_INFO_COUNT;
 	thi = &thi_data;
+    
 	thread_info(mach_thread_self(), THREAD_BASIC_INFO, (thread_info_t)thi, &count);
 	*time = thi->user_time.seconds + thi->user_time.microseconds * 1e-6;
 }
@@ -103,7 +116,6 @@ void __convert(int i) {
 }
 
 void run_perl() {
-	total_time = 0;
 	run_env(0, perl_entry);
 	run_env(1, perl_entry);
 	run_env(2, perl_entry);
@@ -116,7 +128,6 @@ void run_gcc() {
                                used_time = mach_time_to_seconds(__overhead); \
                                total_time -= used_time;
 
-	total_time = 0;
     extern void __init();
     extern void __freelist();
     extern uint64_t __overhead;
@@ -133,32 +144,26 @@ void run_gcc() {
 }
 
 void run_mcf() {
-	total_time = 0;
 	run(8, mcf_entry);
 }
 
 void run_omnetpp() {
-	total_time = 0;
 	run(9, omnetpp_entry);
 }
 
 void run_xalancbmk() {
-	total_time = 0;
 	run(10, xalancbmk_entry);
 }
 
 void run_deepsjeng() {
-	total_time = 0;
 	run(11, deepsjeng_entry);
 }
 
 void run_leela() {
-	total_time = 0;
 	run(12, leela_entry);
 }
 
-void run_xz() {
-	total_time = 0;
+void run_xz() {;
 	run(13, xz_entry);
 	run(14, xz_entry);
 	run(15, xz_entry);
@@ -171,7 +176,7 @@ void run_x264() {
        __convert(19);
        ldecoed_entry(argc, argv);
    }
-   total_time = 0;
+
    char path[256];
    strcpy(path,getenv("HOME"));
    strcat(path,"/Documents/x264_stats.log");
@@ -184,16 +189,20 @@ void run_x264() {
 }
 
 void run_exchange2() {
-	total_time = 0;
-	int arg = 6;	
+	int arg = 6;
+    proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, &usage1);
 	thread_usertime(&st);
 	exchange2_entry(&arg);
 	thread_usertime(&et);
+    proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, &usage2);
 	total_time += et - st;
+    total_nj += usage2.ri_energy_nj - usage1.ri_energy_nj;
 }
 
-long specEntry(const char* benchname) {
-	 mach_timebase_info(&_clock_timebase);
+void specEntry(const char* benchname, double results[2]) {
+    pid = getpid();
+    mach_timebase_info(&_clock_timebase);
+    total_time = 0; total_nj = 0;
     if (strcmp(benchname, "500.perlbench_r") == 0)
         run_perl();
     if (strcmp(benchname, "502.gcc_r") == 0)
@@ -215,7 +224,8 @@ long specEntry(const char* benchname) {
     if (strcmp(benchname, "557.xz_r") == 0)
         run_xz();
     printf("total_time: %f\n", total_time);
-	return total_time;
+    results[0] = total_time;
+    results[1] = (total_nj / 1e9) / total_time;
 }
 /* 500: 707s*/
 /* 502:

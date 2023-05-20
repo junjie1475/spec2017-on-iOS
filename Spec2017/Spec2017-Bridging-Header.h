@@ -2,4 +2,4 @@
 //  Use this file to import your target's public headers that you would like to expose to Swift.
 //
 
-long specEntry(const char* benchname);
+void specEntry(const char* benchname, double results[2]);
