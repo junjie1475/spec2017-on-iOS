@@ -9,6 +9,7 @@
 #include <mach/thread_act.h>
 #include <mach/mach_port.h>
 #include <mach/mach_init.h>
+#include <fcntl.h>
 
 #define run_env(i, func) \
     __convert(i); \
@@ -73,6 +74,7 @@ static char commandLine[][300] = {
 /* 16 */"525.x264 place holder1",
 /* 17 */"525.x264 place holder2",
 /* 18 */"./x264 --seek 500 --dumpyuv 200 --frames 1250 -o BuckBunny_New.264 BuckBunny.yuv 1280x720",
+/* 19 */ "./ldecod -i BuckBunny.264 -o BuckBunny.yuv"
 };
 
  static inline double mach_time_to_seconds(uint64_t mach_time) {
@@ -163,7 +165,13 @@ void run_xz() {
 }
 
 void run_x264() {
-	total_time = 0;
+   extern int ldecoed_entry(int argc, char **argv);
+    // first we check if there is input file called BuckBunny.yuv
+   if(access("./BuckBunny.yuv", F_OK) != 0) {
+       __convert(19);
+       ldecoed_entry(argc, argv);
+   }
+   total_time = 0;
    char path[256];
    strcpy(path,getenv("HOME"));
    strcat(path,"/Documents/x264_stats.log");

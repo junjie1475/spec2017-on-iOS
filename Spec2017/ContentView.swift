@@ -55,7 +55,7 @@ func runBench(_ bench: String, _ testECore: Bool) -> Int {
         FileManager.default.changeCurrentDirectoryPath(benchRunPath)
         
         // 3. run the benchmark
-        runTime_ = specEntry(bench_)
+//        runTime_ = specEntry(bench_)
         running_ = 0
         
         return UnsafeMutableRawPointer.allocate(byteCount: 1, alignment: 1)

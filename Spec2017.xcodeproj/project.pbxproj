@@ -190,6 +190,7 @@
 				"$(SRCROOT)/specbin/gcc_workaround/warp.c",
 				"$(SRCROOT)/specbin/redefine",
 				"$(SRCROOT)/specbin/gcc_original.o",
+				"$(SRCROOT)/specbin/ldecode.o",
 			);
 			outputFileListPaths = (
 			);
@@ -200,7 +201,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "cd ${SRCROOT}/specbin/gcc_workaround &&\nmake &&\n/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -isysroot $(xcrun --sdk iphoneos --show-sdk-path)  -Ofast -c -arch arm64 -g -o ${SCRIPT_OUTPUT_FILE_0} ${SCRIPT_INPUT_FILE_0} &&\n/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -o ${SCRIPT_OUTPUT_FILE_1} ${SCRIPT_INPUT_FILE_1} ${SCRIPT_INPUT_FILE_2} ${SCRIPT_INPUT_FILE_3} ${SCRIPT_INPUT_FILE_4} ${SCRIPT_INPUT_FILE_5} ${SCRIPT_INPUT_FILE_6} ${SCRIPT_INPUT_FILE_7} ${SCRIPT_INPUT_FILE_8} ${SCRIPT_INPUT_FILE_9} ${SCRIPT_INPUT_FILE_10} ${SCRIPT_OUTPUT_FILE_0}\n";
+			shellScript = "cd ${SRCROOT}/specbin/gcc_workaround &&\nmake build &&\n/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -isysroot $(xcrun --sdk iphoneos --show-sdk-path)  -Ofast -c -arch arm64 -g -o ${SCRIPT_OUTPUT_FILE_0} ${SCRIPT_INPUT_FILE_0} &&\n/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -o ${SCRIPT_OUTPUT_FILE_1} ${SCRIPT_INPUT_FILE_1} ${SCRIPT_INPUT_FILE_2} ${SCRIPT_INPUT_FILE_3} ${SCRIPT_INPUT_FILE_4} ${SCRIPT_INPUT_FILE_5} ${SCRIPT_INPUT_FILE_6} ${SCRIPT_INPUT_FILE_7} ${SCRIPT_INPUT_FILE_8} ${SCRIPT_INPUT_FILE_9} ${SCRIPT_INPUT_FILE_10} ${SCRIPT_OUTPUT_FILE_0} ${SCRIPT_INPUT_FILE_14}\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

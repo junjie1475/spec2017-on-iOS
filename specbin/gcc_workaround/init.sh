@@ -8,3 +8,5 @@ do
 done
 
 ld -r gcc_{0..4}.o -o gcc_renamed.o
+rm gcc_{0..4}.o
+rm gcc_original.o
