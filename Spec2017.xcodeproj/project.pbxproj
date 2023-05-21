@@ -199,6 +199,7 @@
 				"$(SRCROOT)/specbin/redefine",
 				"$(SRCROOT)/specbin/gcc_original.o",
 				"$(SRCROOT)/specbin/ldecode.o",
+				"$(SRCROOT)/specbin/bwaves.o",
 			);
 			outputFileListPaths = (
 			);

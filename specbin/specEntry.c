@@ -7,7 +7,7 @@
 
 typedef int entry_t(int argc, char *argv[], char *envp[]);
 #define f(name, N) int (name##_entry##N)(int argc, char *argv[], char *envp[])
-
+// Integer Benchmarks
 f(perl, );
 f(gcc, __0); f(gcc, __1); f(gcc, __2); f(gcc, __3); f(gcc, __4); /* 502.gcc workaround */
 f(mcf, );
@@ -16,8 +16,10 @@ f(xalancbmk, );
 f(x264, );
 f(deepsjeng, );
 f(leela, );
-//f(exchange2,);
+f(exchange2,);
 f(xz, );
+// Floating point Benchmarks
+//f(bwaves, );
 
 #undef f
 int proc_pid_rusage(int pid, int flavor, rusage_info_t *buffer);
@@ -27,14 +29,6 @@ int _gcc_entry(int argc, char *argv[], char *envp[]) {
     static int count = 0;
     static entry_t (*gcc_mapping[5]) = { gcc_entry__0, gcc_entry__1, gcc_entry__2, gcc_entry__3, gcc_entry__4 };
     ((entry_t*)gcc_mapping[count++])(argc, argv, envp);
-    return 0;
-}
-
-// TODO: adapat to same parameter
-int _exchange2_entry(int argc, char *argv[], char *envp[]) {
-    int exchange2_entry(int *arg);
-    int arg = 6;
-    exchange2_entry(&arg);
     return 0;
 }
 
@@ -64,13 +58,20 @@ static char commandLine[][6][300] = {
     
     [531] = {   "./deepsjeng ref.txt",   },
     [541] = {   "./leela ref.sgf",   },
-    [548] = {    "./exchange place holder"   },
+    [548] = {    "./exchange2 6"   },
     [557] = {
         "./xz cld.tar.xz 160 19cf30ae51eddcbefda78dd06014b4b96281456e078ca7c13e1c0c9e6aaea8dff3efb4ad6b0456697718cede6bd5454852652806a657bb56e07d61128434b474 59796407 61004416 6",
         "./xz cpu2006docs.tar.xz 250 055ce243071129412e9dd0b3b69a21654033a9b723d874b2015c774fac1553d9713be561ca86f74e4f16f22e664fc17a79f30caa5ad2c04fbc447549c2810fae 23047774 23513385 6e",
         "./xz input.combined.xz 250 a841f68f38572a49d86226b7ff5baeb31bd19dc637a922a972b2e6d1257a890f6a544ecab967c313e370478c74f760eb229d4eef8a8d2836d233d3e9dd1430bf 40401484 41217675 7",
     },
+    [503] = {
+        "./bwaves bwaves_1",
+        "./bwaves bwaves_2",
+        "./bwaves bwaves_3",
+        "./bwaves bwaves_4"
+    }
 };
+
 entry_t (*function_mapping[]) = {
     [500] = 0,
     [502] = 0,
@@ -81,7 +82,8 @@ entry_t (*function_mapping[]) = {
     [531] = 0,
     [541] = 0,
     [548] = 0,
-    [557] = 0
+    [557] = 0,
+    [503] = 0
 };
 mach_timebase_info_data_t _clock_timebase;
 pid_t pid;
@@ -100,8 +102,9 @@ void init() {
     function_mapping[525] = x264_entry;
     function_mapping[531] = deepsjeng_entry;
     function_mapping[541] = leela_entry;
-    function_mapping[548] = _exchange2_entry;
+    function_mapping[548] = exchange2_entry;
     function_mapping[557] = xz_entry;
+//    function_mapping[503] = bwaves_entry;
     mach_timebase_info(&_clock_timebase);
     pid = getpid();
     
@@ -138,7 +141,7 @@ void specEntry(const char* benchname, double results[2]) {
         
         // retrive energy consumption
         proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, (rusage_info_t*)&usage1);
-        
+         
         // how resoulution per thread usertime
         thread_usertime(&st);
         ((entry_t*)function_mapping[bench])(argc, argv, envp);

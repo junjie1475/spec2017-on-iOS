@@ -10,6 +10,7 @@ import SwiftUI
 struct ResultView: View {
     @Binding var runTimes: [String:[Double]]
     @State var geoMean: Double = 1
+    @State var geoMean_power: Double = 1
     let refMachine: [String:Double] =
     [
         "500.perlbench_r": 1591,
@@ -21,7 +22,9 @@ struct ResultView: View {
         "531.deepsjeng_r": 1145,
         "541.leela_r": 1655,
         "548.exchange2_r": 2619,
-        "557.xz_r": 1076
+        "557.xz_r": 1076,
+        "503.bwaves_r": 10026,
+        
     ]
     
     var body: some View {
@@ -44,7 +47,12 @@ struct ResultView: View {
                 HStack {
                     Text("Geometry Mean");
                     Spacer()
-                    Text("\(String(format: "%.2f", geoMean))")
+                    VStack (alignment: .trailing) {
+                        Text("\(String(format: "%.2f", geoMean))")
+                        Text("\(String(format: "%.2f", geoMean_power))w")
+                            .font(.system(size: 13))
+                            .foregroundColor(.gray)
+                    }
                 }
             }
             
@@ -52,8 +60,10 @@ struct ResultView: View {
         }.onAppear() {
             for (bench, time) in runTimes {
                 geoMean = geoMean * (refMachine[bench]! / Double(time[0]));
+                geoMean_power = geoMean_power * time[1];
             }
             geoMean = pow(geoMean, Double(1.0 / Double(runTimes.count)))
+            geoMean_power = pow(geoMean_power, Double(1.0 / Double(runTimes.count)))
         }
     }
 }

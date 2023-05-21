@@ -92,7 +92,11 @@ struct ContentView: View {
         "548.exchange2_r",
         "557.xz_r",
     ]
-    let itemsFp: [String] = []
+    
+    let itemsFp = [
+        "503.bwaves_r",
+    ]
+    
     @State private var isPresentingConfirm: Bool = false
     
     @State private var runTimes: [String:[Double]] = [:]
