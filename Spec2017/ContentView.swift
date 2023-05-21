@@ -143,9 +143,9 @@ struct ContentView: View {
                             currentBench = ""
                             isRunning = true
                             runTimes.removeAll()
-
+                            
                             Task.detached {
-                                for bench in selection {
+                                for bench in selection.sorted(by: {$0 < $1}) {
                                     currentBench = bench
                                     currentIndex += 1
                                     runnedBench.append(bench)
