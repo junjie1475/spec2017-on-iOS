@@ -19,7 +19,17 @@ f(leela, );
 f(exchange2,);
 f(xz, );
 // Floating point Benchmarks
-//f(bwaves, );
+f(bwaves, );
+f(cactusBSSN, );
+f(namd, );
+f(parest, );
+f(lbm, );
+f(blender, );
+f(cam4, );
+f(imagick, );
+f(nab, );
+f(roms, );
+f(fotonik3d, );
 
 #undef f
 int proc_pid_rusage(int pid, int flavor, rusage_info_t *buffer);
@@ -69,7 +79,17 @@ static char commandLine[][6][300] = {
         "./bwaves bwaves_2",
         "./bwaves bwaves_3",
         "./bwaves bwaves_4"
-    }
+    },
+    [507] = {   "./cactusBSSN spec_ref.par"   },
+    [508] = {   "./namd_r --input apoa1.input --output apoa1.ref.output --iterations 65"   },
+    [510] = {   "./parest_r ref.prm"   },
+    [519] = {   "./lbm_r 3000 reference.dat 0 0 100_100_130_ldc.of"   },
+    [526] = {   "./blender_r sh3_no_char.blend --render-output sh3_no_char_ --threads 1 -b -F RAWTGA -s 849 -e 849 -a"   },
+    [527] = {   "./cam4"   },
+    [538] = {   "./imagick -limit disk 0 refrate_input.tga -edge 41 -resample 181% -emboss 31 -colorspace YUV -mean-shift 19x19+15% -resize 30% refrate_output.tga"   },
+    [544] = {   "./nab 1am0 1122214447 122"   },
+    [549] = {   "./fotonik3d"   },
+    [554] = {   "./roms"   }
 };
 
 entry_t (*function_mapping[]) = {
@@ -83,7 +103,17 @@ entry_t (*function_mapping[]) = {
     [541] = 0,
     [548] = 0,
     [557] = 0,
-    [503] = 0
+    [503] = 0,
+    [507] = 0,
+    [508] = 0,
+    [510] = 0,
+    [519] = 0,
+    [526] = 0,
+    [527] = 0,
+    [538] = 0,
+    [544] = 0,
+    [549] = 0,
+    [554] = 0
 };
 mach_timebase_info_data_t _clock_timebase;
 pid_t pid;
@@ -104,7 +134,17 @@ void init() {
     function_mapping[541] = leela_entry;
     function_mapping[548] = exchange2_entry;
     function_mapping[557] = xz_entry;
-//    function_mapping[503] = bwaves_entry;
+    function_mapping[503] = bwaves_entry;
+    function_mapping[507] = cactusBSSN_entry;
+    function_mapping[508] = namd_entry;
+    function_mapping[510] = parest_entry;
+    function_mapping[519] = lbm_entry;
+    function_mapping[526] = blender_entry;
+    function_mapping[527] = cam4_entry;
+    function_mapping[538] = imagick_entry;
+    function_mapping[544] = nab_entry;
+    function_mapping[549] = fotonik3d_entry;
+    function_mapping[554] = roms_entry;
     mach_timebase_info(&_clock_timebase);
     pid = getpid();
     
@@ -122,7 +162,7 @@ void specEntry(const char* benchname, double results[2]) {
     static char *envp[] = { 0 };
     rusage_info_current usage1, usage2;
     int count = 0;
-    double total_time, total_nj, st, et = 0;
+    double total_time = 0, total_nj = 0, st = 0, et = 0;
     
     int bench = atoi(benchname);
     if(bench == 525) {
@@ -137,12 +177,12 @@ void specEntry(const char* benchname, double results[2]) {
     
     for(int j = 0; j < count; j++) {
         __convert(commandLine[bench][j]);
-        if(bench == 502) __init(); /* gcc workaround */
+        if(bench == 502 || bench == 527) __init(); /* gcc workaround */
         
         // retrive energy consumption
         proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, (rusage_info_t*)&usage1);
          
-        // how resoulution per thread usertime
+        // how resoulution per thread usertime.
         thread_usertime(&st);
         ((entry_t*)function_mapping[bench])(argc, argv, envp);
         thread_usertime(&et);
@@ -150,7 +190,7 @@ void specEntry(const char* benchname, double results[2]) {
         // retrive energy consumption
         proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, (rusage_info_t*)&usage2);
         
-        if(bench == 502) __freelist(); /* gcc workaround */
+        if(bench == 502 || bench == 527) __freelist(); /* gcc workaround */
         total_time += et - st;
         total_nj += usage2.ri_energy_nj - usage1.ri_energy_nj;
     }

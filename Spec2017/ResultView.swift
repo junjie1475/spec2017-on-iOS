@@ -23,7 +23,17 @@ struct ResultView: View {
         "541.leela_r": 1655,
         "548.exchange2_r": 2619,
         "557.xz_r": 1076,
-        "503.bwaves_r": 10026,
+        "503.bwaves_r": 1026,
+        "507.cactuBSSN_r": 1264,
+        "508.namd_r": 949,
+        "510.parest_r": 2615,
+        "519.lbm_r": 1026,
+        "526.blender_r": 1521,
+        "527.cam4_r": 1748,
+        "538.imagick_r": 2486,
+        "544.nab_r": 1682,
+        "549.fotonik3d_r": 1026,
+        "554.roms_r": 1588,
         
     ]
     

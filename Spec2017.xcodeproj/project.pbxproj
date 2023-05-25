@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		B31CED2B29B0C02C000CFFD5 /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B31CED2A29B0C02C000CFFD5 /* ResultView.swift */; };
-		B38314152A199C3000344F12 /* libFortranRuntime.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B38314132A199C3000344F12 /* libFortranRuntime.a */; };
+		B35B39B72A1E342D00D91DFF /* libFortranRuntime.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B35B39B62A1E342D00D91DFF /* libFortranRuntime.a */; };
 		B38314162A199C3000344F12 /* libFortranDecimal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B38314142A199C3000344F12 /* libFortranDecimal.a */; };
 		B398B2B229AF68CD00B03BF9 /* Spec2017App.swift in Sources */ = {isa = PBXBuildFile; fileRef = B398B2B129AF68CD00B03BF9 /* Spec2017App.swift */; };
 		B398B2B429AF68CD00B03BF9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B398B2B329AF68CD00B03BF9 /* ContentView.swift */; };
@@ -22,7 +22,7 @@
 
 /* Begin PBXFileReference section */
 		B31CED2A29B0C02C000CFFD5 /* ResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultView.swift; sourceTree = "<group>"; };
-		B38314132A199C3000344F12 /* libFortranRuntime.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFortranRuntime.a; path = fortran_lib/libFortranRuntime.a; sourceTree = "<group>"; };
+		B35B39B62A1E342D00D91DFF /* libFortranRuntime.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFortranRuntime.a; path = fortran_lib/libFortranRuntime.a; sourceTree = "<group>"; };
 		B38314142A199C3000344F12 /* libFortranDecimal.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFortranDecimal.a; path = fortran_lib/libFortranDecimal.a; sourceTree = "<group>"; };
 		B398B2AE29AF68CD00B03BF9 /* Spec2017.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Spec2017.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B398B2B129AF68CD00B03BF9 /* Spec2017App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spec2017App.swift; sourceTree = "<group>"; };
@@ -45,7 +45,7 @@
 			files = (
 				B3B205A329BCA71B00EE18E6 /* libc.tbd in Frameworks */,
 				B3A8D0C829B4C94B00D47FBB /* libc++.tbd in Frameworks */,
-				B38314152A199C3000344F12 /* libFortranRuntime.a in Frameworks */,
+				B35B39B72A1E342D00D91DFF /* libFortranRuntime.a in Frameworks */,
 				B38314162A199C3000344F12 /* libFortranDecimal.a in Frameworks */,
 				B3ACD9032A0E151100B0B017 /* rary.a in Frameworks */,
 			);
@@ -98,8 +98,8 @@
 		B3ACF4AB29B1F5740051C636 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B35B39B62A1E342D00D91DFF /* libFortranRuntime.a */,
 				B38314142A199C3000344F12 /* libFortranDecimal.a */,
-				B38314132A199C3000344F12 /* libFortranRuntime.a */,
 				B3ACD9022A0E151100B0B017 /* rary.a */,
 				B3B205A229BCA71B00EE18E6 /* libc.tbd */,
 				B3A8D0C729B4C94A00D47FBB /* libc++.tbd */,
@@ -178,39 +178,21 @@
 /* Begin PBXShellScriptBuildPhase section */
 		B3ACD9042A0E169400B0B017 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/specbin/specEntry.c",
-				"$(SRCROOT)/specbin/deepsjeng.o",
-				"$(SRCROOT)/specbin/exchange2.o",
-				"$(SRCROOT)/specbin/gcc.o",
-				"$(SRCROOT)/specbin/leela_r.o",
-				"$(SRCROOT)/specbin/mcf.o",
-				"$(SRCROOT)/specbin/omnetpp.o",
-				"$(SRCROOT)/specbin/perlbench.o",
-				"$(SRCROOT)/specbin/x264.o",
-				"$(SRCROOT)/specbin/xalancbmk.o",
-				"$(SRCROOT)/specbin/xz.o",
-				"$(SRCROOT)/specbin/gcc_workaround/warp.c",
-				"$(SRCROOT)/specbin/redefine",
-				"$(SRCROOT)/specbin/gcc_original.o",
-				"$(SRCROOT)/specbin/ldecode.o",
-				"$(SRCROOT)/specbin/bwaves.o",
 			);
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(SRCROOT)/specbin/specEntry.o",
-				"$(SRCROOT)/specbin/rary.a",
-				"$(SRCROOT)/specbin/gcc_workaround/warp.o",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "cd ${SRCROOT}/specbin/gcc_workaround &&\nmake build &&\n/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -isysroot $(xcrun --sdk iphoneos --show-sdk-path)  -Og -c -arch arm64 -g -o ${SCRIPT_OUTPUT_FILE_0} ${SCRIPT_INPUT_FILE_0} &&\n/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -o ${SCRIPT_OUTPUT_FILE_1} ${SCRIPT_INPUT_FILE_1} ${SCRIPT_INPUT_FILE_2} ${SCRIPT_INPUT_FILE_3} ${SCRIPT_INPUT_FILE_4} ${SCRIPT_INPUT_FILE_5} ${SCRIPT_INPUT_FILE_6} ${SCRIPT_INPUT_FILE_7} ${SCRIPT_INPUT_FILE_8} ${SCRIPT_INPUT_FILE_9} ${SCRIPT_INPUT_FILE_10} ${SCRIPT_OUTPUT_FILE_0} ${SCRIPT_INPUT_FILE_14}\n";
+			shellScript = "cd ${SRCROOT}/specbin && make build\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

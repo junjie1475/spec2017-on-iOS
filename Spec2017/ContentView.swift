@@ -31,7 +31,7 @@ func runBench(_ bench: String, _ testECore: Bool) -> [Double] {
     var thread: pthread_t? = nil
     var qosAttribute = pthread_attr_t()
     pthread_attr_init(&qosAttribute)
-    var size: Int = 4096 * 1024;
+    var size: Int = 50000 * 1024;
     pthread_attr_setstacksize(&qosAttribute, size)
     running_ = 1
     pthread_create(&thread, &qosAttribute, { arg in
@@ -95,6 +95,16 @@ struct ContentView: View {
     
     let itemsFp = [
         "503.bwaves_r",
+        "507.cactuBSSN_r",
+        "508.namd_r",
+        "510.parest_r",
+        "519.lbm_r",
+        "527.cam4_r",
+        "526.blender_r",
+        "538.imagick_r",
+        "544.nab_r",
+        "549.fotonik3d_r",
+        "554.roms_r",
     ]
     
     @State private var isPresentingConfirm: Bool = false
