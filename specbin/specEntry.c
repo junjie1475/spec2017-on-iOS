@@ -181,7 +181,7 @@ void specEntry(const char* benchname, double results[2]) {
     
     for(int j = 0; j < count; j++) {
         __convert(commandLine[bench][j]);
-        if(bench == 502 || bench == 527) __init(); /* gcc workaround */
+        if(bench == 502) __init(); /* gcc workaround */
         
         // retrive energy consumption
         proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, (rusage_info_t*)&usage1);
@@ -194,7 +194,7 @@ void specEntry(const char* benchname, double results[2]) {
         // retrive energy consumption
         proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, (rusage_info_t*)&usage2);
         
-        if(bench == 502 || bench == 527) __freelist(); /* gcc workaround */
+        if(bench == 502) __freelist(); /* gcc workaround */
         total_time += et - st;
         total_nj += usage2.ri_energy_nj - usage1.ri_energy_nj;
     }

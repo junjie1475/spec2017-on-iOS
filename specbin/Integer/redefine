@@ -1,0 +1,4 @@
+_malloc ___warp_malloc  
+_calloc ___warp_calloc
+_realloc ___warp_realloc
+_free ___warp_free

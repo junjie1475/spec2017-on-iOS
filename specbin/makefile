@@ -1,4 +1,4 @@
-OBJ = bwaves.o cactusBSSN.o cam4.o deepsjeng.o exchange2.o fotonik3d.o gcc.o ldecode.o leela_r.o mcf.o omnetpp.o perlbench.o roms.o specEntry.o warp.o x264.o xalancbmk.o xz.o namd.o parest.o lbm.o imagick.o nab.o blender.o povray_r.o
+OBJ = Integer/perlbench.o Integer/exchange2.o Integer/xz.o Integer/leela_r.o Integer/deepsjeng.o Integer/x264.o Integer/omnetpp.o Integer/ldecode.o Integer/mcf.o Integer/xalancbmk.o Integer/gcc.o Floating-Point/nab.o Floating-Point/blender.o Floating-Point/bwaves.o Floating-Point/lbm.o Floating-Point/fotonik3d.o Floating-Point/roms.o Floating-Point/parest.o Floating-Point/povray_r.o Floating-Point/imagick.o Floating-Point/cactusBSSN.o Floating-Point/namd.o Floating-Point/cam4.o warp.o specEntry.o
 
 CC = $(shell xcrun --sdk iphoneos --find clang)
 LIB = $(shell xcrun --sdk iphoneos --show-sdk-path)
@@ -14,9 +14,11 @@ warp.o: warp.c
 specEntry.o: specEntry.c specEntry.h
 	$(CC) $< -o $@ $(CFLAGS) $(LDFLAGS)
 
-gcc.o: gcc_original.o
+Integer/gcc.o: Integer/gcc_original.o
+	cd Integer/
 	./init.sh # gcc workaround generate 5 copies with different symbol names
 	llvm-objcopy --redefine-syms redefine gcc.o # for custom memory allcator
+	cd ..
 
 clean:
-	rm warp.o specEntry.o gcc.o
+	rm warp.o specEntry.o Integer/gcc.o
