@@ -27,6 +27,7 @@ struct ResultView: View {
         "507.cactuBSSN_r": 1264,
         "508.namd_r": 949,
         "510.parest_r": 2615,
+        "511.povray_r": 2334,
         "519.lbm_r": 1026,
         "526.blender_r": 1521,
         "527.cam4_r": 1748,

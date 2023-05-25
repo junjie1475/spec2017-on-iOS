@@ -1,4 +1,4 @@
-OBJ = bwaves.o cactusBSSN.o cam4.o deepsjeng.o exchange2.o fotonik3d.o gcc.o ldecode.o leela_r.o mcf.o omnetpp.o perlbench.o roms.o specEntry.o warp.o x264.o xalancbmk.o xz.o namd.o parest.o lbm.o imagick.o nab.o blender.o
+OBJ = bwaves.o cactusBSSN.o cam4.o deepsjeng.o exchange2.o fotonik3d.o gcc.o ldecode.o leela_r.o mcf.o omnetpp.o perlbench.o roms.o specEntry.o warp.o x264.o xalancbmk.o xz.o namd.o parest.o lbm.o imagick.o nab.o blender.o povray_r.o
 
 CC = $(shell xcrun --sdk iphoneos --find clang)
 LIB = $(shell xcrun --sdk iphoneos --show-sdk-path)

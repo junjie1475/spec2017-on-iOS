@@ -23,6 +23,7 @@ f(bwaves, );
 f(cactusBSSN, );
 f(namd, );
 f(parest, );
+f(povray, );
 f(lbm, );
 f(blender, );
 f(cam4, );
@@ -83,6 +84,7 @@ static char commandLine[][6][300] = {
     [507] = {   "./cactusBSSN spec_ref.par"   },
     [508] = {   "./namd_r --input apoa1.input --output apoa1.ref.output --iterations 65"   },
     [510] = {   "./parest_r ref.prm"   },
+    [511] = {   "./povray_r SPEC-benchmark-ref.ini"   },
     [519] = {   "./lbm_r 3000 reference.dat 0 0 100_100_130_ldc.of"   },
     [526] = {   "./blender_r sh3_no_char.blend --render-output sh3_no_char_ --threads 1 -b -F RAWTGA -s 849 -e 849 -a"   },
     [527] = {   "./cam4"   },
@@ -107,6 +109,7 @@ entry_t (*function_mapping[]) = {
     [507] = 0,
     [508] = 0,
     [510] = 0,
+    [511] = 0,
     [519] = 0,
     [526] = 0,
     [527] = 0,
@@ -138,6 +141,7 @@ void init() {
     function_mapping[507] = cactusBSSN_entry;
     function_mapping[508] = namd_entry;
     function_mapping[510] = parest_entry;
+    function_mapping[511] = povray_entry;
     function_mapping[519] = lbm_entry;
     function_mapping[526] = blender_entry;
     function_mapping[527] = cam4_entry;

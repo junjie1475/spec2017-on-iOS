@@ -98,6 +98,7 @@ struct ContentView: View {
         "507.cactuBSSN_r",
         "508.namd_r",
         "510.parest_r",
+        "511.povray_r",
         "519.lbm_r",
         "527.cam4_r",
         "526.blender_r",
