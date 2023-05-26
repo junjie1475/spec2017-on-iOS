@@ -1,3 +1,5 @@
 Spec2017/Input/
 specbin/rary.a
 .DS_Store
+specbin/specEntry.o
+specbin/warp.o

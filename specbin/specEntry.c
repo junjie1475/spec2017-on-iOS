@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/resource.h>
+#include <stdbool.h>
 #include "specEntry.h"
 
 typedef int entry_t(int argc, char *argv[], char *envp[]);
@@ -160,6 +161,7 @@ void init() {
     sprintf(commandLine[525][1], "./x264 --pass 2 --stats %s --bitrate 1000 --dumpyuv 200 --frames 1000 -o BuckBunny_New.264 BuckBunny.yuv 1280x720", path);
 }
 
+bool __warp = false;
 void specEntry(const char* benchname, double results[2]) {
     // initialization
     extern uint64_t __overhead; __overhead = 0;
@@ -179,14 +181,16 @@ void specEntry(const char* benchname, double results[2]) {
     }
     while(commandLine[bench][count][0]) { count ++; }
     
+    if(bench == 502 || bench == 527) __warp = true;
+    else __warp = false;
     for(int j = 0; j < count; j++) {
         __convert(commandLine[bench][j]);
-        if(bench == 502) __init(); /* gcc workaround */
+        if(__warp) __init(); /* gcc workaround */
         
         // retrive energy consumption
         proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, (rusage_info_t*)&usage1);
          
-        // how resoulution per thread usertime.
+        // high resoulution per thread usertime.
         thread_usertime(&st);
         ((entry_t*)function_mapping[bench])(argc, argv, envp);
         thread_usertime(&et);
@@ -194,7 +198,7 @@ void specEntry(const char* benchname, double results[2]) {
         // retrive energy consumption
         proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, (rusage_info_t*)&usage2);
         
-        if(bench == 502) __freelist(); /* gcc workaround */
+        if(__warp) __freelist(); /* gcc workaround */
         total_time += et - st;
         total_nj += usage2.ri_energy_nj - usage1.ri_energy_nj;
     }

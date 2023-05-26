@@ -4,6 +4,7 @@
 #include <mach/mach.h>
 #include <mach/mach_time.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #define HEADER_SIZE sizeof(queue_header_t)
 typedef struct queue_header {
@@ -25,7 +26,7 @@ typedef struct queue_header {
  |                        |
  +------------------+
  */
-
+extern bool __warp;
 // root node never be deleted
 static queue_header_t *head, *tail;
 uint64_t __overhead = 0;
@@ -67,6 +68,7 @@ static int __mdel(void *ptr) {
 }
 
 void *__warp_malloc(size_t size) {
+    if(!__warp) return malloc(size);
 #ifdef DEBUG
     header->debug = header->debug << 3 | 0b001;
 #endif
@@ -82,6 +84,7 @@ void *__warp_malloc(size_t size) {
 }
 
 void *__warp_calloc(size_t num, size_t size) {
+    if(!__warp) return calloc(num, size);
 #ifdef DEBUG
     header->debug = header->debug << 3 | 0b010;
 #endif
@@ -108,6 +111,7 @@ void *__warp_calloc(size_t num, size_t size) {
  */
 
 void *__warp_realloc (void *old_base, size_t new_size) {
+    if(!__warp) return realloc(old_base, new_size);
     assert(new_size != 0); // Implemation define
 
     new_size += HEADER_SIZE;
@@ -146,6 +150,7 @@ void *__warp_realloc (void *old_base, size_t new_size) {
 }
 
 void __warp_free(void *ptr) {
+    if(!__warp) return free(ptr);
     uint64_t start = mach_absolute_time();
     if(ptr == NULL) return;
     queue_header_t *header = (queue_header_t*)(ptr - HEADER_SIZE);

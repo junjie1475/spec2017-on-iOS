@@ -31,7 +31,7 @@ func runBench(_ bench: String, _ testECore: Bool) -> [Double] {
     var thread: pthread_t? = nil
     var qosAttribute = pthread_attr_t()
     pthread_attr_init(&qosAttribute)
-    var size: Int = 50000 * 1024;
+    let size: Int = 50000 * 1024;
     pthread_attr_setstacksize(&qosAttribute, size)
     running_ = 1
     pthread_create(&thread, &qosAttribute, { arg in
