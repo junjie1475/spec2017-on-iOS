@@ -8,3 +8,5 @@ done
 
 ld -r gcc_{0..4}.o -o gcc.o
 rm gcc_{0..4}.o
+
+llvm-objcopy --redefine-syms redefine gcc.o # for custom memory allcator

@@ -16,8 +16,7 @@ specEntry.o: specEntry.c specEntry.h
 
 Integer/gcc.o: Integer/gcc_original.o
 	cd Integer/ && \
-	./init.sh && \ # gcc workaround generate 5 copies with different symbol names
-	llvm-objcopy --redefine-syms redefine gcc.o # for custom memory allcator
+	./init.sh # gcc workaround generate 5 copies with different symbol names
 
 clean:
 	rm warp.o specEntry.o Integer/gcc.o
