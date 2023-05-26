@@ -3,3 +3,4 @@ specbin/rary.a
 .DS_Store
 specbin/specEntry.o
 specbin/warp.o
+specbin/Integer/gcc.o
