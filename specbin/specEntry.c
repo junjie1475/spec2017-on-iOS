@@ -145,6 +145,7 @@ void init() {
     function_mapping[507] = cactusBSSN_entry;
     function_mapping[508] = namd_entry;
     function_mapping[510] = parest_entry;
+    function_mapping[511] = povray_entry;
     function_mapping[521] = wrf_entry;
     function_mapping[519] = lbm_entry;
     function_mapping[526] = blender_entry;
