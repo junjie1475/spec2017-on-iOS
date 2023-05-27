@@ -1,7 +1,7 @@
 # spec2017-on-iOS
 Minimum iOS version iOS16
 
-This is only an experimental playground to run spec2017 on iOS. It supports all the specRate2017 Interger and FP Benchmarks(expect 521.wrf_r). Use at your own risk!
+This is only an experimental playground to run spec2017 on iOS. It supports all the specRate2017 Interger and FP Benchmarks. Use at your own risk!
 
 # How to install
 1. Download ipa file on release page
