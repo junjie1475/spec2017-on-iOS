@@ -181,11 +181,12 @@ void specEntry(const char* benchname, double results[2]) {
     }
     while(commandLine[bench][count][0]) { count ++; }
     
-    if(bench == 502 || bench == 527) __warp = true;
+    if(bench == 500 || bench == 502 || bench == 531 || bench == 557 || bench == 527) __warp = true;
     else __warp = false;
+    if(bench == 500) __init(); // For 500.perlbench we only need to clean up once.
     for(int j = 0; j < count; j++) {
         __convert(commandLine[bench][j]);
-        if(__warp) __init(); /* gcc workaround */
+        if(__warp && bench != 500) __init(); /* memory leak patch */
         
         // retrive energy consumption
         proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, (rusage_info_t*)&usage1);
@@ -198,11 +199,12 @@ void specEntry(const char* benchname, double results[2]) {
         // retrive energy consumption
         proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, (rusage_info_t*)&usage2);
         
-        if(__warp) __freelist(); /* gcc workaround */
+        if(__warp && bench != 500) __freelist(); /* memory leak patch */
         total_time += et - st;
         total_nj += usage2.ri_energy_nj - usage1.ri_energy_nj;
     }
     
+    if(bench == 500) __freelist(); // For 500.perlbench we only need to clean up once.
     results[1] = total_nj / 1e9 / total_time;
     results[0] = total_time - mach_time_to_seconds(__overhead); /* gcc workaround */
 }

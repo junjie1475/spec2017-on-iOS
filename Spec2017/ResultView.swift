@@ -91,3 +91,7 @@ struct ResultView_Previews: PreviewProvider {
         ResultView(runTimes: $runTimes)
     }
 }
+
+/* 500: 359MB*/
+/* 531: 700MB*/
+/* 557: 1.5GB : peak 1.7G*/
