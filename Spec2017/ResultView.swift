@@ -29,6 +29,7 @@ struct ResultView: View {
         "510.parest_r": 2615,
         "511.povray_r": 2334,
         "519.lbm_r": 1026,
+        "521.wrf_r": 2239,
         "526.blender_r": 1521,
         "527.cam4_r": 1748,
         "538.imagick_r": 2486,

@@ -100,6 +100,7 @@ struct ContentView: View {
         "510.parest_r",
         "511.povray_r",
         "519.lbm_r",
+        "521.wrf_r",
         "527.cam4_r",
         "526.blender_r",
         "538.imagick_r",

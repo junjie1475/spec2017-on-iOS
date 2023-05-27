@@ -26,6 +26,7 @@ f(namd, );
 f(parest, );
 f(povray, );
 f(lbm, );
+f(wrf, );
 f(blender, );
 f(cam4, );
 f(imagick, );
@@ -87,6 +88,7 @@ static char commandLine[][6][300] = {
     [510] = {   "./parest_r ref.prm"   },
     [511] = {   "./povray_r SPEC-benchmark-ref.ini"   },
     [519] = {   "./lbm_r 3000 reference.dat 0 0 100_100_130_ldc.of"   },
+    [521] = {   "./wrf"   },
     [526] = {   "./blender_r sh3_no_char.blend --render-output sh3_no_char_ --threads 1 -b -F RAWTGA -s 849 -e 849 -a"   },
     [527] = {   "./cam4"   },
     [538] = {   "./imagick -limit disk 0 refrate_input.tga -edge 41 -resample 181% -emboss 31 -colorspace YUV -mean-shift 19x19+15% -resize 30% refrate_output.tga"   },
@@ -112,6 +114,7 @@ entry_t (*function_mapping[]) = {
     [510] = 0,
     [511] = 0,
     [519] = 0,
+    [521] = 0,
     [526] = 0,
     [527] = 0,
     [538] = 0,
@@ -142,7 +145,7 @@ void init() {
     function_mapping[507] = cactusBSSN_entry;
     function_mapping[508] = namd_entry;
     function_mapping[510] = parest_entry;
-    function_mapping[511] = povray_entry;
+    function_mapping[521] = wrf_entry;
     function_mapping[519] = lbm_entry;
     function_mapping[526] = blender_entry;
     function_mapping[527] = cam4_entry;
@@ -181,7 +184,7 @@ void specEntry(const char* benchname, double results[2]) {
     }
     while(commandLine[bench][count][0]) { count ++; }
     
-    if(bench == 500 || bench == 502 || bench == 531 || bench == 557 || bench == 527) __warp = true;
+    if(bench == 500 || bench == 502 || bench == 531 || bench == 557 || bench == 521 || bench == 527) __warp = true;
     else __warp = false;
     if(bench == 500) __init(); // For 500.perlbench we only need to clean up once.
     for(int j = 0; j < count; j++) {
