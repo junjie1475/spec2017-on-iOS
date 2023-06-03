@@ -51,18 +51,64 @@ struct ResultView: View {
         List {
             Section(header: Text("Integer")) {
                 ForEach(runTimes.sorted(by: { $0.key < $1.key }), id: \.key) { bench, result in
-                    HStack {
-                        Text(bench)
-                        Spacer()
-                        VStack (alignment: .trailing) {
-                            let score = refMachine[bench]! / result[0];
+                    if(frequency) {
+                        DisclosureGroup(
+                            content: {
+                                VStack {
+                                    HStack {
+                                        Text("Average Power")
+                                        Spacer()
+                                        Text(fmtp(1, result))
+                                    }
+                                    HStack {
+                                        Text("Min Power")
+                                        Spacer()
+                                        Text(fmtp(2, result))
+                                    }
+                                    HStack {
+                                        Text("Max Power")
+                                        Spacer()
+                                        Text(fmtp(3, result))
+                                    }
+                                    HStack {
+                                        Text("Average Frequency")
+                                        Spacer()
+                                        Text(fmtf(4, result))
+                                    }
+                                    HStack {
+                                        Text("Min Frequency")
+                                        Spacer()
+                                        Text(fmtf(5, result))
+                                    }
+                                    HStack {
+                                        Text("Max Frequency")
+                                        Spacer()
+                                        Text(fmtf(6, result))
+                                    }
+                                }
+                            },
                             
-                            Text("\(String(format: "%.2f", score))")
-                            if(frequency) {
-                                Text("Power{\(fmtp(1, result))|\(fmtp(2, result))|\(fmtp(3, result))} Freq{\(fmtf(4, result))|\(fmtf(5, result))|\(fmtf(6, result))}   \(String(format: "%.2f", result[0]))s")
-                                    .font(.system(size: 13))
-                                    .foregroundColor(.gray)
-                            } else {
+                            label: {
+                                HStack {
+                                    Text(bench)
+                                    Spacer()
+                                    VStack (alignment: .trailing) {
+                                        let score = refMachine[bench]! / result[0];
+                                        Text("\(String(format: "%.2f", score))")
+                                        Text("\(String(format: "%.2f", result[0]))s")
+                                            .font(.system(size: 13))
+                                            .foregroundColor(.gray)
+                                    }
+                                }
+                            }
+                        )
+                    } else {
+                        HStack {
+                            Text(bench)
+                            Spacer()
+                            VStack (alignment: .trailing) {
+                                let score = refMachine[bench]! / result[0];
+                                Text("\(String(format: "%.2f", score))")
                                 Text("\(fmtp(1, result))   \(String(format: "%.2f", result[0]))s")
                                     .font(.system(size: 13))
                                     .foregroundColor(.gray)
@@ -84,7 +130,7 @@ struct ResultView: View {
             }
             
             Section(footer: VStack {
-                Text("Result format: Power|Freq{Avg|Min|Max}\n\nCompiler            : Apple Clang14/Flang17\nCompiler Flags : -Ofast -arch arm64\nAuthor                 : junjie1475;jht5132").font(.system(size: 16)).bold()
+                Text("\n\nCompiler            : Apple Clang14/Flang17\nCompiler Flags : -Ofast -arch arm64\nAuthor                 : junjie1475;jht5132").font(.system(size: 16)).bold()
             }) {}
             
         }.onAppear() {
