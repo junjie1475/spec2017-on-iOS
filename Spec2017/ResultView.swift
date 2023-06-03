@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ResultView: View {
     @Binding var runTimes: [String:[Double]]
+    @Binding var frequency: Bool
     @State var geoMean: Double = 1
     @State var geoMean_power: Double = 1
     let refMachine: [String:Double] =
@@ -39,6 +40,12 @@ struct ResultView: View {
         "554.roms_r": 1588,
         
     ]
+    func fmtp(_ x: Int, _ results: [Double]) -> String {
+        return String(format: "%.2f", results[x]) + "w"
+    }
+    func fmtf(_ x: Int, _ results: [Double]) -> String {
+        return String(format: "%.2f", results[x]) + "Mhz"
+    }
     
     var body: some View {
         List {
@@ -51,9 +58,15 @@ struct ResultView: View {
                             let score = refMachine[bench]! / result[0];
                             
                             Text("\(String(format: "%.2f", score))")
-                            Text("\(String(format: "%.2f", result[1]))w   \(String(format: "%.2f", result[0]))s")
-                                .font(.system(size: 13))
-                                .foregroundColor(.gray)
+                            if(frequency) {
+                                Text("Power{\(fmtp(1, result))|\(fmtp(2, result))|\(fmtp(3, result))} Freq{\(fmtf(4, result))|\(fmtf(5, result))|\(fmtf(6, result))}   \(String(format: "%.2f", result[0]))s")
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.gray)
+                            } else {
+                                Text("\(fmtp(1, result))   \(String(format: "%.2f", result[0]))s")
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.gray)
+                            }
                         }
                     }
                 }
@@ -62,6 +75,7 @@ struct ResultView: View {
                     Spacer()
                     VStack (alignment: .trailing) {
                         Text("\(String(format: "%.2f", geoMean))")
+                        
                         Text("\(String(format: "%.2f", geoMean_power))w")
                             .font(.system(size: 13))
                             .foregroundColor(.gray)
@@ -69,6 +83,9 @@ struct ResultView: View {
                 }
             }
             
+            Section(footer: VStack {
+                Text("Result format: Power|Freq{Avg|Min|Max}\n\nCompiler            : Apple Clang14/Flang17\nCompiler Flags : -Ofast -arch arm64\nAuthor                 : junjie1475;jht5132").font(.system(size: 16)).bold()
+            }) {}
             
         }.onAppear() {
             for (bench, time) in runTimes {
@@ -88,9 +105,9 @@ struct ResultView_Previews: PreviewProvider {
         "502.gcc_r": [226, 3.0],
         "505.mcf_r": [158, 2.9],
     ]
-
+    @State private static var frequency: Bool = true;
     static var previews: some View {
-        ResultView(runTimes: $runTimes)
+        ResultView(runTimes: $runTimes, frequency: $frequency)
     }
 }
 

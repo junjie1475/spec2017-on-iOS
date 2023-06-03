@@ -2,8 +2,12 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include <sys/resource.h>
+//#include <sys/resource.h>
 #include <stdbool.h>
+#include <sys/sysctl.h>
+#include <sched.h>
+#include <sys/param.h>
+#include <stdint.h>
 #include "specEntry.h"
 
 typedef int entry_t(int argc, char *argv[], char *envp[]);
@@ -124,6 +128,8 @@ entry_t (*function_mapping[]) = {
 };
 mach_timebase_info_data_t _clock_timebase;
 pid_t pid;
+int countsize = 0;
+struct proc_threadcounts *start = NULL, *last = NULL;
 static inline double mach_time_to_seconds(uint64_t mach_time) {
     double nanos = (mach_time * _clock_timebase.numer) / _clock_timebase.denom;
     return nanos / 1e9;
@@ -165,14 +171,91 @@ void init() {
     sprintf(commandLine[525][1], "./x264 --pass 2 --stats %s --bitrate 1000 --dumpyuv 200 --frames 1000 -o BuckBunny_New.264 BuckBunny.yuv 1280x720", path);
 }
 
+static bool logging = false;
+uint64_t target_tid;
+uint64_t cycle_avg, cycle_min, cycle_max, energy_avg, energy_min, energy_max;
+uint64_t time_easple = 0;
+
+void log_routine(void *arg) {
+    bool first = true;
+    uint64_t cycle_start, cycle_end, energy_start, energy_end, time_start, time_end;
+    struct sched_param param;
+    param.sched_priority = *(bool*)arg ? 6 : 47;
+    pthread_setschedparam(pthread_self(), SCHED_OTHER, &param);
+    
+    while(!logging);
+    
+    // this loop sample energy and cycle every second
+    while (logging) {
+        proc_pidinfo(pid, PROC_PIDTHREADCOUNTS, target_tid, start, countsize);
+        uint64_t start_time = mach_absolute_time();
+        struct proc_threadcounts_data *p2 = &(start->ptc_counts[0]);
+        if(first) {
+            first = false;
+            cycle_start = p2->ptcd_cycles;
+            energy_start = p2->ptcd_energy_nj;
+            time_start = p2->ptcd_user_time_mach + p2->ptcd_system_time_mach;
+            memcpy(last, start, countsize);
+            usleep((1 - mach_time_to_seconds(mach_absolute_time() - start_time)) * 1e6);
+            continue;
+        }
+        // 0 is P-CORE 1 is E-CORE
+        struct proc_threadcounts_data *p1 = &(last->ptc_counts[0]);
+
+        double time_elaspe = mach_time_to_seconds((p2->ptcd_user_time_mach + p2->ptcd_system_time_mach) - (p1->ptcd_user_time_mach + p1->ptcd_system_time_mach));
+        
+        uint64_t cycle_per_second = (p2->ptcd_cycles - p1->ptcd_cycles) / time_elaspe;
+        uint64_t energy_per_second = (p2->ptcd_energy_nj - p1->ptcd_energy_nj) / time_elaspe;
+        
+        printf("cycle_per_second: %llu\n", cycle_per_second);
+        printf("energy_per_second: %llu\n", energy_per_second);
+        // Cycles
+        cycle_min = MIN(cycle_per_second, cycle_min);
+        cycle_max = MAX(cycle_per_second, cycle_max);
+        cycle_end = p2->ptcd_cycles;
+        
+        // Energy
+        energy_min = MIN(energy_per_second, energy_min);
+        energy_max = MAX(energy_per_second, energy_max);
+        energy_end = p2->ptcd_energy_nj;
+        
+        // Time
+        time_end = p2->ptcd_user_time_mach + p2->ptcd_system_time_mach;
+        
+        memcpy(last, start, countsize);
+        usleep((1 - mach_time_to_seconds(mach_absolute_time() - start_time)) * 1e6);
+    }
+    time_easple += time_end - time_start;
+    
+    cycle_avg += cycle_end - cycle_start;
+    energy_avg += energy_end - energy_start;
+}
+
 bool __warp = false;
-void specEntry(const char* benchname, double results[2]) {
+
+/**
+    @param results[7] Layout : [ usertime, avg power, min power, max power, avg frequency, min frequency, max frequency]
+ */
+void specEntry(const char* benchname, double results[7], bool eCore, bool frequency) {
+    pthread_threadid_np(pthread_self(), &target_tid);
+    
+    pthread_t logthread;
+    
+    // init energy, cycle counting
+    int len = 2;
+    countsize = sizeof(struct proc_threadcounts) + len * sizeof(struct proc_threadcounts_data);
+    start = (struct proc_threadcounts*)malloc(countsize);
+    last = (struct proc_threadcounts*)malloc(countsize);
+    
     // initialization
     extern uint64_t __overhead; __overhead = 0;
     static char *envp[] = { 0 };
     rusage_info_current usage1, usage2;
     int count = 0;
     double total_time = 0, total_nj = 0, st = 0, et = 0;
+    
+    cycle_avg = 0; cycle_min = UINT64_MAX; cycle_max = 0; energy_avg = 0; energy_min = UINT64_MAX; energy_max = 0;
+    count = 0;
     
     int bench = atoi(benchname);
     if(bench == 525) {
@@ -187,31 +270,54 @@ void specEntry(const char* benchname, double results[2]) {
     
     if(bench == 500 || bench == 502 || bench == 531 || bench == 557 || bench == 521 || bench == 527) __warp = true;
     else __warp = false;
+    
     if(bench == 500) __init(); // For 500.perlbench we only need to clean up once.
     for(int j = 0; j < count; j++) {
         __convert(commandLine[bench][j]);
         if(__warp && bench != 500) __init(); /* memory leak patch */
         
-        // retrive energy consumption
-        proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, (rusage_info_t*)&usage1);
-         
+        if (frequency) {
+            // spawn logging thread instead
+            pthread_create(&logthread, NULL, log_routine, &eCore);
+        } else {
+            // retrive energy consumption
+            proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, (rusage_info_t*)&usage1);
+        }
+        
         // high resoulution per thread usertime.
         thread_usertime(&st);
+        logging = true;
         ((entry_t*)function_mapping[bench])(argc, argv, envp);
+        logging = false;
         thread_usertime(&et);
         
-        // retrive energy consumption
-        proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, (rusage_info_t*)&usage2);
-        
+        if (frequency) {
+            pthread_join(logthread, NULL);
+        } else {
+            // retrive energy consumption
+            proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, (rusage_info_t*)&usage2);
+        }
+
         if(__warp && bench != 500) __freelist(); /* memory leak patch */
         total_time += et - st;
         total_nj += usage2.ri_energy_nj - usage1.ri_energy_nj;
     }
     
     if(bench == 500) __freelist(); // For 500.perlbench we only need to clean up once.
-    results[1] = total_nj / 1e9 / total_time;
+    time_easple = mach_time_to_seconds(time_easple);
+    logging = false;
     results[0] = total_time - mach_time_to_seconds(__overhead); /* gcc workaround */
+    results[1] = frequency ? (energy_avg / time_easple) / 1e9 : total_nj / 1e9 / total_time;
+    results[2] = energy_min / 1e9;
+    results[3] = energy_max / 1e9;
+    results[4] = (cycle_avg / time_easple) / 1e6;
+    results[5] = cycle_min / 1e6;
+    results[6] = cycle_max / 1e6;
+    
+    free(start);
+    free(last);
 }
+
 /* 500: 707s*/
 /* 502:
     1. 58s

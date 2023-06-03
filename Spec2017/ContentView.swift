@@ -18,15 +18,17 @@ enum BenchmarkSelection : String, CaseIterable {
 }
 
 
-// global variables use by threads
-var results: [Double] = [0, 0]
+// global variables used by threads
+var results: [Double] = [0, 0, 0, 0, 0, 0, 0]
 var bench_: String = ""
 var running_: Int = 0
 var testECore_: Bool = false
+var frequency_: Bool = false
 
-func runBench(_ bench: String, _ testECore: Bool) -> [Double] {
+func runBench(_ bench: String, _ testECore: Bool, _ frequency: Bool) -> [Double] {
     bench_ = bench
     testECore_ = testECore
+    frequency_ = frequency
     
     var thread: pthread_t? = nil
     var qosAttribute = pthread_attr_t()
@@ -55,7 +57,7 @@ func runBench(_ bench: String, _ testECore: Bool) -> [Double] {
         FileManager.default.changeCurrentDirectoryPath(benchRunPath)
         
         // 3. run the benchmark
-        specEntry(bench_, &results)
+        specEntry(bench_, &results, testECore_, frequency_)
         running_ = 0
         
         return UnsafeMutableRawPointer.allocate(byteCount: 1, alignment: 1)
@@ -80,6 +82,7 @@ struct ContentView: View {
     @State private var currentIndex = 0
     @State private var runnedBench: [String] = []
     @State private var testECore = false
+    @State private var frequency = false
     let itemsInt = [
         "500.perlbench_r",
         "502.gcc_r",
@@ -147,6 +150,10 @@ struct ContentView: View {
                         }, label: {Text(testECore ? "Test P Core" : "Test E Core")})
                         Spacer()
                         Button(action: {
+                            frequency = !frequency
+                        }, label: {Text(frequency ? "unlog-freq" : "log-freq")})
+                        Spacer()
+                        Button(action: {
                             // check if already runned
                             for bench in selection {
                                 if runnedBench.contains(bench) {
@@ -165,7 +172,7 @@ struct ContentView: View {
                                     currentBench = bench
                                     currentIndex += 1
                                     runnedBench.append(bench)
-                                    runTimes[bench] = runBench(bench, testECore)
+                                    runTimes[bench] = runBench(bench, testECore, frequency)
                                 }
                                 isRunning = false
                                 path.append(runTimes)
@@ -182,7 +189,7 @@ struct ContentView: View {
                             Text("Due to some ios limitation, you need to restart the App to run spec")
                         }
                         .navigationDestination(for: [String:[Double]].self) { runTimes in
-                            ResultView(runTimes: $runTimes).navigationTitle("Result")
+                            ResultView(runTimes: $runTimes, frequency: $frequency).navigationTitle("Result")
                         }
                     }.padding()
                 }

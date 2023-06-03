@@ -4,6 +4,31 @@
 #include <mach/thread_act.h>
 #include <mach/mach_port.h>
 #include <mach/mach_init.h>
+
+
+// see https://github.com/apple-oss-distributions/xnu/blob/5c2921b07a2480ab43ec66f5b9e41cb872bc554f/bsd/sys/proc_info.h#L898
+
+struct proc_threadcounts_data {
+    uint64_t ptcd_instructions;
+    uint64_t ptcd_cycles;
+    uint64_t ptcd_user_time_mach;
+    uint64_t ptcd_system_time_mach;
+    uint64_t ptcd_energy_nj;
+};
+
+struct proc_threadcounts {
+    uint16_t ptc_len;
+    uint16_t ptc_reserved0;
+    uint32_t ptc_reserved1;
+    struct proc_threadcounts_data ptc_counts[];
+};
+
+#define PROC_PIDTHREADCOUNTS 34
+#define PROC_PIDTHREADCOUNTS_SIZE (sizeof(struct proc_threadcounts))
+
+int proc_pidinfo(int pid, int flavor, uint64_t arg, void *buffer, int buffersize);
+
+
 extern void __init();
 extern void __freelist();
 
