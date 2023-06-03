@@ -182,14 +182,14 @@ void log_routine(void *arg) {
     struct sched_param param;
     param.sched_priority = *(bool*)arg ? 6 : 47;
     pthread_setschedparam(pthread_self(), SCHED_OTHER, &param);
-    
+    int index = *(bool*)arg ? 1 : 0;
     while(!logging);
     
     // this loop sample energy and cycle every second
     while (logging) {
         proc_pidinfo(pid, PROC_PIDTHREADCOUNTS, target_tid, start, countsize);
         uint64_t start_time = mach_absolute_time();
-        struct proc_threadcounts_data *p2 = &(start->ptc_counts[0]);
+        struct proc_threadcounts_data *p2 = &(start->ptc_counts[index]);
         if(first) {
             first = false;
             cycle_start = p2->ptcd_cycles;
@@ -200,7 +200,7 @@ void log_routine(void *arg) {
             continue;
         }
         // 0 is P-CORE 1 is E-CORE
-        struct proc_threadcounts_data *p1 = &(last->ptc_counts[0]);
+        struct proc_threadcounts_data *p1 = &(last->ptc_counts[index]);
 
         double time_elaspe = mach_time_to_seconds((p2->ptcd_user_time_mach + p2->ptcd_system_time_mach) - (p1->ptcd_user_time_mach + p1->ptcd_system_time_mach));
         
