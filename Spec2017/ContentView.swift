@@ -21,12 +21,14 @@ enum BenchmarkSelection : String, CaseIterable {
 // global variables used by threads
 var results: [Double] = [0, 0, 0, 0, 0, 0, 0]
 var bench_: String = ""
+var resultpath_: String = ""
 var running_: Int = 0
 var testECore_: Bool = false
 var frequency_: Bool = false
 
-func runBench(_ bench: String, _ testECore: Bool, _ frequency: Bool) -> [Double] {
+func runBench(_ bench: String, _ resultpath: String, _ testECore: Bool, _ frequency: Bool) -> [Double] {
     bench_ = bench
+    resultpath_ = resultpath
     testECore_ = testECore
     frequency_ = frequency
     
@@ -57,13 +59,13 @@ func runBench(_ bench: String, _ testECore: Bool, _ frequency: Bool) -> [Double]
         FileManager.default.changeCurrentDirectoryPath(benchRunPath)
         
         // 3. run the benchmark
-        specEntry(bench_, &results, testECore_, frequency_)
+        specEntry(bench_, resultpath_, &results, testECore_, frequency_)
         running_ = 0
         
         return UnsafeMutableRawPointer.allocate(byteCount: 1, alignment: 1)
     }, nil)
     
-    // since pthread_join() will effects the E-Core run, scan memory every 5s to check the state.
+    // since pthread_join() effects the E-Core run, scan memory every 5s to check the state.
     while(true) {
         sleep(5);
         if(running_ == 0) {
@@ -83,6 +85,7 @@ struct ContentView: View {
     @State private var runnedBench: [String] = []
     @State private var testECore = false
     @State private var frequency = false
+    @State private var benchResultPath: String = ""
     let itemsInt = [
         "500.perlbench_r",
         "502.gcc_r",
@@ -168,11 +171,26 @@ struct ContentView: View {
                             runTimes.removeAll()
                             
                             Task.detached {
+                                let now = Date()
+                                let formatter = DateFormatter()
+                                formatter.timeZone = TimeZone.current
+                                formatter.dateFormat = "yyyy-MM-dd HH:mm"
+                                let dateString = formatter.string(from: now)
+                                
+                                benchResultPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                                    .path() + "Results/" + dateString
+                                
+                                do {
+                                    try FileManager.default.createDirectory(atPath: benchResultPath, withIntermediateDirectories: false)
+                                    try FileManager.default.createDirectory(atPath: benchResultPath + "/Power", withIntermediateDirectories: false)
+                                    try FileManager.default.createDirectory(atPath: benchResultPath + "/Frequency", withIntermediateDirectories: false)
+                                } catch _ as NSError {}
+                                
                                 for bench in selection.sorted(by: {$0 < $1}) {
                                     currentBench = bench
                                     currentIndex += 1
                                     runnedBench.append(bench)
-                                    runTimes[bench] = runBench(bench, testECore, frequency)
+                                    runTimes[bench] = runBench(bench, benchResultPath, testECore, frequency)
                                 }
                                 isRunning = false
                                 path.append(runTimes)
@@ -189,7 +207,7 @@ struct ContentView: View {
                             Text("Due to some ios limitation, you need to restart the App to run spec")
                         }
                         .navigationDestination(for: [String:[Double]].self) { runTimes in
-                            ResultView(runTimes: $runTimes, frequency: $frequency).navigationTitle("Result")
+                            ResultView(runTimes: $runTimes, frequency: $frequency, testECore: $testECore, benchResultPath: $benchResultPath).navigationTitle("Result")
                         }
                     }.padding()
                 }
@@ -212,9 +230,9 @@ struct VisualEffectView: UIViewRepresentable {
     func makeUIView(context: UIViewRepresentableContext<Self>) -> UIVisualEffectView { UIVisualEffectView() }
     func updateUIView(_ uiView: UIVisualEffectView, context: UIViewRepresentableContext<Self>) { uiView.effect = effect }
 }
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
+//
+//struct ContentView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ContentView()
+//    }
+//}

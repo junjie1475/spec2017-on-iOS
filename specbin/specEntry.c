@@ -176,6 +176,8 @@ uint64_t target_tid;
 uint64_t cycle_avg, cycle_min, cycle_max, energy_avg, energy_min, energy_max;
 uint64_t time_easple = 0;
 
+FILE *powerfile, *frequencyfile;
+
 void log_routine(void *arg) {
     bool first = true;
     uint64_t cycle_start, cycle_end, energy_start, energy_end, time_start, time_end;
@@ -207,8 +209,9 @@ void log_routine(void *arg) {
         uint64_t cycle_per_second = (p2->ptcd_cycles - p1->ptcd_cycles) / time_elaspe;
         uint64_t energy_per_second = (p2->ptcd_energy_nj - p1->ptcd_energy_nj) / time_elaspe;
         
-        printf("cycle_per_second: %llu\n", cycle_per_second);
-        printf("energy_per_second: %llu\n", energy_per_second);
+        fprintf(frequencyfile, "%llu\n", cycle_per_second);
+        fprintf(powerfile, "%llu\n", energy_per_second);
+        
         // Cycles
         cycle_min = MIN(cycle_per_second, cycle_min);
         cycle_max = MAX(cycle_per_second, cycle_max);
@@ -223,7 +226,7 @@ void log_routine(void *arg) {
         time_end = p2->ptcd_user_time_mach + p2->ptcd_system_time_mach;
         
         memcpy(last, start, countsize);
-        usleep((1 - mach_time_to_seconds(mach_absolute_time() - start_time)) * 1e6);
+        usleep((0.1 - mach_time_to_seconds(mach_absolute_time() - start_time)) * 1e6);
     }
     time_easple += time_end - time_start;
     
@@ -236,10 +239,20 @@ bool __warp = false;
 /**
     @param results[7] Layout : [ usertime, avg power, min power, max power, avg frequency, min frequency, max frequency]
  */
-void specEntry(const char* benchname, double results[7], bool eCore, bool frequency) {
+void specEntry(const char* benchname, const char* resultpath, double results[7], bool eCore, bool frequency) {
     pthread_threadid_np(pthread_self(), &target_tid);
     
     pthread_t logthread;
+    char* powerpath = concat(4, resultpath, "/Power/", benchname, ".csv");
+    char* frequencypath = concat(4, resultpath, "/Frequency/", benchname, ".csv");
+    powerfile = fopen(powerpath, "w");
+    frequencyfile = fopen(frequencypath, "w");
+    
+    fprintf(powerfile, "Cycle Per Second\n");
+    fprintf(frequencyfile, "Energy Per Second\n");
+    
+    free(powerpath);
+    free(frequencypath);
     
     // init energy, cycle counting
     int len = 2;
@@ -316,6 +329,8 @@ void specEntry(const char* benchname, double results[7], bool eCore, bool freque
     
     free(start);
     free(last);
+    fclose(powerfile);
+    fclose(frequencyfile);
 }
 
 /* 500: 707s*/

@@ -10,6 +10,8 @@ import SwiftUI
 struct ResultView: View {
     @Binding var runTimes: [String:[Double]]
     @Binding var frequency: Bool
+    @Binding var testECore: Bool
+    @Binding var benchResultPath: String
     @State var geoMean: Double = 1
     @State var geoMean_power: Double = 1
     let refMachine: [String:Double] =
@@ -140,22 +142,37 @@ struct ResultView: View {
             }
             geoMean = pow(geoMean, Double(1.0 / Double(runTimes.count)))
             geoMean_power = pow(geoMean_power, Double(1.0 / Double(runTimes.count)))
+
+
+            var buf = "Bench,Time(s),Score,Power(w),Frequency(Mhz),Core\n"
+            for (bench, result) in Array(runTimes).sorted(by: {$0.0 < $1.0}) {
+                let score = refMachine[bench]! / result[0];
+                buf += bench + "," + String(format: "%.2f", result[0]) + "," + String(format: "%.2f", score) + "," + String(format: "%.2f", result[1]) + "," + String(format: "%.2f", result[4]) + "," + (testECore ? "E" : "P") + "\n"
+            }
+
+            buf += "GeoMean," + "\"\"," + String(format: "%.2f", geoMean) + "," + String(format: "%.2f", geoMean_power) + ",\"\",\"\""
+
+            print(buf)
+            do {
+                try buf.write(toFile: benchResultPath + "/result.csv", atomically: true, encoding: .utf8)
+            } catch
+            {}
         }
     }
 }
 
-struct ResultView_Previews: PreviewProvider {
-    @State private static var runTimes: [String:[Double]] =
-    [
-        "557.xz_r": [343, 3.2],
-        "502.gcc_r": [226, 3.0],
-        "505.mcf_r": [158, 2.9],
-    ]
-    @State private static var frequency: Bool = true;
-    static var previews: some View {
-        ResultView(runTimes: $runTimes, frequency: $frequency)
-    }
-}
+//struct ResultView_Previews: PreviewProvider {
+//    @State private static var runTimes: [String:[Double]] =
+//    [
+//        "557.xz_r": [343, 3.2],
+//        "502.gcc_r": [226, 3.0],
+//        "505.mcf_r": [158, 2.9],
+//    ]
+//    @State private static var frequency: Bool = true;
+//    static var previews: some View {
+//        ResultView(runTimes: $runTimes, frequency: $frequency)
+//    }
+//}
 
 /* 500: 359MB*/
 /* 531: 700MB*/

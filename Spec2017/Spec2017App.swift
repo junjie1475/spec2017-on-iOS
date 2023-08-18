@@ -12,7 +12,16 @@ struct Spec2017App: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
+                .onAppear {
+                    UIApplication.shared.isIdleTimerDisabled = true
+                    
+                    let benchResultPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                        .path() + "Results"
+
+                    do {
+                        try FileManager.default.createDirectory(atPath: benchResultPath, withIntermediateDirectories: false)
+                    } catch _ as NSError {}
+                }
         }
     }
 }
