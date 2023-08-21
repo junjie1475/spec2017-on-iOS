@@ -210,7 +210,9 @@ void log_routine(void *arg) {
         uint64_t energy_per_second = (p2->ptcd_energy_nj - p1->ptcd_energy_nj) / time_elaspe;
         
         fprintf(frequencyfile, "%llu\n", cycle_per_second);
+//        printf("cycle: %llu\n", cycle_per_second);
         fprintf(powerfile, "%llu\n", energy_per_second);
+//        printf("power: %llu\n", energy_per_second);
         
         // Cycles
         cycle_min = MIN(cycle_per_second, cycle_min);
@@ -234,15 +236,58 @@ void log_routine(void *arg) {
     energy_avg += energy_end - energy_start;
 }
 
+void sighand(int signo)
+{
+  usleep(250000);
+  return;
+}
+
+pthread_t maint;
+void int_routine(void *arg) {
+    struct sched_param param;
+    param.sched_priority = *(bool*)arg ? 6 : 47;
+    pthread_setschedparam(pthread_self(), SCHED_OTHER, &param);
+
+    sigset_t mask;
+    sigfillset(&mask); /* unMask all allowed signals */
+    pthread_sigmask(SIG_UNBLOCK, &mask, NULL);
+
+    struct sigaction        actions;
+    memset(&actions, 0, sizeof(actions));
+    sigemptyset(&actions.sa_mask);
+    actions.sa_flags = 0;
+    actions.sa_handler = sighand;
+    sigaction(SIGALRM,&actions,NULL);
+
+    while(logging != false) {
+        pthread_kill(maint, SIGALRM);
+        sleep(3);
+    }
+}
+
 bool __warp = false;
+
 
 /**
     @param results[7] Layout : [ usertime, avg power, min power, max power, avg frequency, min frequency, max frequency]
  */
 void specEntry(const char* benchname, const char* resultpath, double results[7], bool eCore, bool frequency) {
-    pthread_threadid_np(pthread_self(), &target_tid);
     
-    pthread_t logthread;
+    sigset_t mask;
+    sigfillset(&mask); /* unMask all allowed signals */
+    pthread_sigmask(SIG_UNBLOCK, &mask, NULL);
+
+    struct sigaction        actions;
+    memset(&actions, 0, sizeof(actions));
+    sigemptyset(&actions.sa_mask);
+    actions.sa_flags = 0;
+    actions.sa_handler = sighand;
+    sigaction(SIGALRM,&actions,NULL);
+
+    maint = pthread_self();
+    pthread_threadid_np(maint, &target_tid);
+
+    pthread_t logthread, inthread;
     char* powerpath = concat(4, resultpath, "/Power/", benchname, ".csv");
     char* frequencypath = concat(4, resultpath, "/Frequency/", benchname, ".csv");
     powerfile = fopen(powerpath, "w");
@@ -297,6 +342,9 @@ void specEntry(const char* benchname, const char* resultpath, double results[7],
             proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, (rusage_info_t*)&usage1);
         }
         
+        if(bench != 500 || bench != 502 || bench != 505 || bench != 520 || bench != 523 || bench != 525 || bench != 531 || bench != 541 || bench != 548 || bench != 557)
+            pthread_create(&inthread, NULL, int_routine, &eCore);
+
         // high resoulution per thread usertime.
         thread_usertime(&st);
         logging = true;

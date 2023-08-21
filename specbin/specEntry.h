@@ -4,7 +4,7 @@
 #include <mach/thread_act.h>
 #include <mach/mach_port.h>
 #include <mach/mach_init.h>
-
+#include <signal.h>
 
 // see https://github.com/apple-oss-distributions/xnu/blob/5c2921b07a2480ab43ec66f5b9e41cb872bc554f/bsd/sys/proc_info.h#L898
 
