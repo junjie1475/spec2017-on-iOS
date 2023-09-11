@@ -9,6 +9,8 @@
 #include <sys/param.h>
 #include <stdint.h>
 #include "specEntry.h"
+#define SLEEP_TIME 10 // in second
+#define INT_INTERVAL 60 // in second
 
 typedef int entry_t(int argc, char *argv[], char *envp[]);
 #define f(name, N) int (name##_entry##N)(int argc, char *argv[], char *envp[])
@@ -238,7 +240,7 @@ void log_routine(void *arg) {
 
 void sighand(int signo)
 {
-  usleep(250000);
+  usleep(SLEEP_TIME * 1e6);
   return;
 }
 
@@ -261,7 +263,7 @@ void int_routine(void *arg) {
 
     while(logging != false) {
         pthread_kill(maint, SIGALRM);
-        sleep(3);
+        sleep(INT_INTERVAL);
     }
 }
 
@@ -342,7 +344,7 @@ void specEntry(const char* benchname, const char* resultpath, double results[7],
             proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, (rusage_info_t*)&usage1);
         }
         
-        if(bench != 500 || bench != 502 || bench != 505 || bench != 520 || bench != 523 || bench != 525 || bench != 531 || bench != 541 || bench != 548 || bench != 557)
+        if((bench != 500 || bench != 502 || bench != 505 || bench != 520 || bench != 523 || bench != 525 || bench != 531 || bench != 541 || bench != 548 || bench != 557) || eCore)
             pthread_create(&inthread, NULL, int_routine, &eCore);
 
         // high resoulution per thread usertime.
